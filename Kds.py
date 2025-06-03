@@ -21,14 +21,15 @@ def range_to_median(value):
 
 # Load dataset
 df = pd.read_csv('Animal Dataset.csv')
-
+# Ambil hanya warna pertama dari kolom 'Color'
+df['Primary_Color'] = df['Color'].apply(lambda x: str(x).split(',')[0].strip())
 # Convert and encode
 df['Height (cm)'] = df['Height (cm)'].apply(range_to_median)
 le = LabelEncoder()
-df['Color_encoded'] = le.fit_transform(df['Color'])
+df['Color_encoded'] = le.fit_transform(df['Primary_Color'])
 
 # Drop missing values
-df.dropna(subset=['Height (cm)', 'Color', 'Habitat'], inplace=True)
+df.dropna(subset=['Height (cm)', 'Primary_Color', 'Habitat'], inplace=True)
 
 # Extract only the first habitat
 df['Primary_Habitat'] = df['Habitat'].apply(lambda x: str(x).split(',')[0].strip())
@@ -65,13 +66,12 @@ input_color = input("Enter color (must match known colors, e.g., 'Grey', 'Brown'
 # Process height input
 input_height_val = range_to_median(input_height)
 
-# Encode color input
+# Encode input color (bandingkan dengan kelas dari Primary_Color)
 if input_color in le.classes_:
     input_color_encoded = le.transform([input_color])[0]
 else:
     print(f"Unknown color '{input_color}'. Known colors: {list(le.classes_)}")
     exit()
-
 # Prepare and scale input
 input_data = pd.DataFrame([[input_height_val, input_color_encoded]], columns=['Height (cm)', 'Color_encoded'])
 input_scaled = scaler.transform(input_data)
